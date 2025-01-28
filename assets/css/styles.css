@@ -1,0 +1,33 @@
+.app-header .brand .brand-logo {
+    font-size: 1.25rem;
+    text-decoration: none;
+    width: 100%;
+    padding: 0.5rem 0 !important;
+    height: var(--bs-app-header-height);
+
+}
+.form-control {
+    padding: .375rem .575rem !important;
+}
+
+.report-heading{
+    text-align: center;
+}
+.center-photo{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+    padding-top: 20px;
+}
+.qtn{
+    margin-bottom: -4px !important;
+}
+.response{
+    border-bottom-color: #EBEEF4;
+    border-bottom-width: 1px;
+    border-bottom-style: dashed;
+}
+.answer{
+    color: #9c9c9c !important;
+}
