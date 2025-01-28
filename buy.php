@@ -25,88 +25,151 @@
 <!-- BEGIN login-content -->
 <div class="login-content">
 <form action="" method="POST" >
-	<img style="display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 30%; padding-bottom: 20px;" src="assets/img/signin-logo.png">
-
-	<?php
-
-if (isset($_POST['login'])) {
+<?php
 require_once 'includes/dbhandle.php';
-$username = $_POST['username'];
-$password = $_POST['password'];
+$package = $_GET['id'];
 
-//to prevent from mysqli injection  
-$username = stripcslashes($username);  
-$password = stripcslashes($password);  
-
-$sql = "SELECT * FROM users WHERE username='$username' ";
+$sql 	= "SELECT * FROM packages WHERE packageID='$package' ";
 $result = mysqli_query($con, $sql);
-$user = mysqli_fetch_array($result, MYSQLI_ASSOC);
+$row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
+$price 	= $row["price"];
+$router = $row["router"];
 
-if ($user) {
-if ($password == $user["password"]) {
-session_start();
-$fullname = $arr = explode(' ',trim($user["fullname"]));
-$_SESSION['user'] = $fullname[0];
-$_SESSION['role'] = $user["role"];
-$_SESSION['id'] = $user["userID"];
-$_SESSION['district'] = $user["district"];
 
-$lastLogin = (date("Y/m/d h:i:s a"));
-$sql = "UPDATE users SET lastlogin='$lastLogin' WHERE username='$username'";
-
-if(mysqli_query($con, $sql) AND $_SESSION['role'] == 'admin'){
-header("Location: dash.php"); 
-die();
-} elseif(mysqli_query($con, $sql) AND $_SESSION['role'] == 'officer'){
-header("Location: dash-o.php"); 
-die();
-}elseif(mysqli_query($con, $sql) AND $_SESSION['role'] == 'monitor'){
-header("Location: dash-m.php"); 
-die();
-}else{
-die();
-    echo "ERROR: Could not able to execute $sql. " . mysqli_error($con);
-}
-
-// Close connection
-mysqli_close($con);
-
-}else{
-echo "
-<div class='alert alert-primary alert-dismissible fade show' role='alert'>
-Password is wrong!
-<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'>  
-</button>
-</div>";
-}
-}else{
-echo "
-<div class='alert alert-primary alert-dismissible fade show' role='alert'>
-User does not exist!
-<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'>  
-</button>
-</div>";
-}
-}
+$sql 	= "SELECT * FROM router WHERE routerID='$router' ";
+$result = mysqli_query($con, $sql);
+$row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
+$dns 	= $row["dns"];
 
 ?>
-	<div class="mb-3">
-		<div class="d-flex">
 
-		</div>
-		<input type="text" class="form-control form-control-lg fs-15px" name="username" placeholder="Username">
-	</div> 
-	<div class="mb-3">
-		<div class="d-flex">
+<?php
 
-		</div>
-		<input type="password" class="form-control form-control-lg fs-15px" name="password" placeholder="Enter your password">
-	</div>
+if (isset($_POST['pay'])){
+require_once 'includes/dbhandle.php';
 
-	<button type="submit" name="login" class="btn btn-theme btn-lg d-block w-100 fw-500 mb-3">Sign In</button>
+
+$phone = $_POST['phone'];
+$package = $_GET['id'];
+
+
+$sql 	= "SELECT * FROM packages WHERE packageID='$package' ";
+$result = mysqli_query($con, $sql);
+$row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
+$price 	= $row["price"];
+$router = $row["router"];
+
+$sql 	= "SELECT * FROM router WHERE routerID='$router' ";
+$result = mysqli_query($con, $sql);
+$row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
+$dns 	= $row["dns"];
+
+
+
+
+
+
+$client_id = "pay-d1b52074-078d-454f-8919-5358cc4c951b";
+$client_secret = "IO-uJSnPjbYN9BaOUJQB2UukDj3wKOSpU2ap";
+$auth_url = "https://id.iotec.io/connect/token";
+$payment_url = "https://pay.iotec.io/api/collections/collect";
+
+// Step 1: Get access token
+$data = http_build_query([
+    'client_id' => $client_id,
+    'client_secret' => $client_secret,
+    'grant_type' => 'client_credentials'
+]);
+
+$options = [
+    'http' => [
+        'header'  => "Content-Type: application/x-www-form-urlencoded",
+        'method'  => 'POST',
+        'content' => $data
+    ]
+];
+
+$context  = stream_context_create($options);
+$response = file_get_contents($auth_url, false, $context);
+if ($response === FALSE) {
+    die("Failed to authenticate.");
+}
+
+$token = json_decode($response, true)['access_token'];
+
+// Step 2: Process payment
+$payer = $_POST['phone'];
+$amount = $_POST['amount'];
+$payer_note = $_POST['payer_note'];
+$payee_note = $_POST['payee_note'];
+$wallet_id = "f72eba17-6b78-4f6a-b477-a54ff2b7f9b3";
+
+$payment_data = json_encode([
+    "category" => "MobileMoney",
+    "currency" => "UGX",
+    "walletId" => $wallet_id,
+    "externalId" => uniqid(),
+    "payer" => $payer,
+    "payerNote" => $payer_note,
+    "amount" => $amount,
+    "payeeNote" => $payee_note
+]);
+
+$options = [
+    'http' => [
+        'header'  => "Authorization: Bearer $token\r\n" .
+                     "Content-Type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => $payment_data
+    ]
+];
+
+$context  = stream_context_create($options);
+$response = file_get_contents($payment_url, false, $context);
+
+if ($response === FALSE) {
+    die("Payment request failed.");
+} 
+
+$transaction = json_decode($response, true);
+
+// Step 3: Save transaction to database
+$sql = "INSERT INTO commission_balance (paymentID, status, payer, amount) VALUES (?, ?, ?, ?)";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("sssd", $transaction['id'], $transaction['status'], $payer, $amount);
+$stmt->execute();
+ 
+// Redirect to status check
+sleep(20);
+echo "<script type='text/javascript'> 
+window.location.replace('status.php?id=" . $transaction['id']."&dns=".$dns"')
+</script>"; 
+//exit(header("Location: status_check.php?id=" . $transaction['id']));
+exit;
+}
+?> 
+
+
+
+
+<div class="mb-3">
+	<input type="text" class="form-control form-control-lg fs-15px" name="dns" value="<?php echo $dns; ?>" placeholder="Enter phone number">
+</div>
+<div class="mb-3">
+	<input type="text" class="form-control form-control-lg fs-15px" name="price" value="<?php echo $price; ?>" placeholder="Enter phone number">
+</div>
+<div class="mb-3">
+	<input type="text" class="form-control form-control-lg fs-15px" name="phone" placeholder="Enter phone number">
+</div>
+<div class="mb-3">
+    <input hidden class="form-control" type="text" id="description" name="payer_note" value="dtehm payment">
+</div>
+
+<div class="mb-3">
+    <input hidden class="form-control" type="text" id="description" name="payee_note" value="dtehm payment" >
+</div>
+
+<button type="submit" name="login" class="btn btn-theme btn-lg d-block w-100 fw-500 mb-3">Buy Now</button>
 </form>
 </div>
 <!-- END login-content -->

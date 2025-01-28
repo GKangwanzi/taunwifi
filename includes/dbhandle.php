@@ -2,7 +2,7 @@
     $host = "localhost";  
     $user = "root";  
     $passw = "";  
-    $dbname = "ewrt";   
+    $dbname = "taunwifi";   
 
 
     $con = mysqli_connect($host, $user, $passw, $dbname);  
