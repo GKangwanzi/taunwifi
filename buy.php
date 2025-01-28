@@ -142,7 +142,7 @@ $stmt->execute();
 // Redirect to status check
 sleep(20);
 echo "<script type='text/javascript'> 
-window.location.replace('status.php?id=" . $transaction['id']."&dns=".$dns"')
+window.location.replace('status.php?id=" . $transaction['id']."&dns=".$dns."')
 </script>"; 
 //exit(header("Location: status_check.php?id=" . $transaction['id']));
 exit;
