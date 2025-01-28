@@ -99,7 +99,7 @@ $token = json_decode($response, true)['access_token'];
 
 // Step 2: Process payment
 $payer = $_POST['phone'];
-$amount = $_POST['amount'];
+$amount = $_POST['price'];
 $payer_note = $_POST['payer_note'];
 $payee_note = $_POST['payee_note'];
 $wallet_id = "f72eba17-6b78-4f6a-b477-a54ff2b7f9b3";
@@ -134,9 +134,9 @@ if ($response === FALSE) {
 $transaction = json_decode($response, true);
 
 // Step 3: Save transaction to database
-$sql = "INSERT INTO commission_balance (paymentID, status, payer, amount) VALUES (?, ?, ?, ?)";
+$sql = "INSERT INTO transactions (transactionID, amount, phone, status) VALUES (?, ?, ?, ?)";
 $stmt = $con->prepare($sql);
-$stmt->bind_param("sssd", $transaction['id'], $transaction['status'], $payer, $amount);
+$stmt->bind_param("sssd", $transaction['id'], $amount, $payer, $transaction['status'],  );
 $stmt->execute();
  
 // Redirect to status check
@@ -169,7 +169,7 @@ exit;
     <input hidden class="form-control" type="text" id="description" name="payee_note" value="dtehm payment" >
 </div>
 
-<button type="submit" name="login" class="btn btn-theme btn-lg d-block w-100 fw-500 mb-3">Buy Now</button>
+<button type="submit" name="pay" class="btn btn-theme btn-lg d-block w-100 fw-500 mb-3">Buy Now</button>
 </form>
 </div>
 <!-- END login-content -->

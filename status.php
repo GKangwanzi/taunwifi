@@ -1,5 +1,6 @@
 <?php
 include "includes/dbhandle.php";
+include "includes/sms.php";
 
 $client_id = "pay-d1b52074-078d-454f-8919-5358cc4c951b";
 $client_secret = "IO-uJSnPjbYN9BaOUJQB2UukDj3wKOSpU2ap";
@@ -30,7 +31,7 @@ if ($response === FALSE) {
 $token = json_decode($response, true)['access_token'];
 
 // Step 2: Check payment status
-$sql    = "SELECT * FROM vouchers WHERE status = 'available' ORDER BY voucherID DESC LIMIT 1 ";
+$sql    = "SELECT * FROM voucher WHERE status = 'available' ORDER BY voucherID DESC LIMIT 1 ";
 $result = mysqli_query($con, $sql);
 $row    = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
@@ -62,7 +63,7 @@ $stmt->bind_param("ss", $status, $transaction_id);
 $stmt->execute();
 
 $vstatus = 'sold';
-$sql = "UPDATE vouchers SET status = ? WHERE voucherID = ?";
+$sql = "UPDATE voucher SET status = ? WHERE voucherID = ?";
 $stmt2 = $con->prepare($sql);
 $stmt2 -> bind_param("ss", $vstatus, $code);
 $stmt2 -> execute();
@@ -71,7 +72,7 @@ $stmt2 -> execute();
 // Step 4: Redirect based on status
 if ($status === "Success") {
     SendSMS('non_customised','bulk', $phone, $message);
-    header("Location: https://".$dns"login.html?card=".$code" ");
+    header("Location: https://".$dns."/login.html?card=".$code." ");
 } else {
     header("Location: failure.php");
 }
