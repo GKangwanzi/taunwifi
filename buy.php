@@ -35,7 +35,7 @@ $row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
 $price 	= $row["price"];
 $router = $row["router"];
 
-
+ 
 $sql 	= "SELECT * FROM router WHERE routerID='$router' ";
 $result = mysqli_query($con, $sql);
 $row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
@@ -59,6 +59,7 @@ $row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
 $price 	= $row["price"];
 $router = $row["router"];
 
+
 $sql 	= "SELECT * FROM router WHERE routerID='$router' ";
 $result = mysqli_query($con, $sql);
 $row 	= mysqli_fetch_array($result, MYSQLI_ASSOC);
@@ -81,7 +82,7 @@ $data = http_build_query([
     'grant_type' => 'client_credentials'
 ]);
 
-$options = [
+$options = [ 
     'http' => [
         'header'  => "Content-Type: application/x-www-form-urlencoded",
         'method'  => 'POST',
@@ -138,11 +139,11 @@ $sql = "INSERT INTO transactions (transactionID, amount, phone, status) VALUES (
 $stmt = $con->prepare($sql);
 $stmt->bind_param("sssd", $transaction['id'], $amount, $payer, $transaction['status'],  );
 $stmt->execute();
- 
+  
 // Redirect to status check
 sleep(20);
 echo "<script type='text/javascript'> 
-window.location.replace('status.php?id=" . $transaction['id']."&dns=".$dns."')
+window.location.replace('status.php?id=" . $transaction['id']."&dns=".$dns."&package=".$package."&phone=".$phone."') 
 </script>"; 
 //exit(header("Location: status_check.php?id=" . $transaction['id']));
 exit;

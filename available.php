@@ -21,7 +21,7 @@ include "includes/head.php";
 <div class="col-xl-12">
 <div class="row">
 	<div class="col-9">
-	<h4 class="page-header">Packages</h4>
+	<h4 class="page-header">Available Vouchers</h4>
 	</div>
 	<div class="col-3">
 	<button style="float: right;" type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modaluser">Add New Router</button>
@@ -135,7 +135,7 @@ echo "
     <a aria-label='anchor' class='btn btn-sm bg-primary-subtle me-1' data-bs-toggle='tooltip' data-bs-original-title='Edit'>
         <i class='fa fa-edit'></i>
     </a>
-    <a onclick='return checkDelete()' href='includes/delete.php?id=".$row['packageID']."&t=".$tableName."&tID=".$tableid."' aria-label='anchor' class='btn btn-sm bg-danger-subtle' data-bs-toggle='tooltip' data-bs-original-title='Delete'>
+    <a onclick='return checkDelete()' href='includes/delete.php?id=".$row['voucherID']."&t=".$tableName."&tID=".$tableid."' aria-label='anchor' class='btn btn-sm bg-danger-subtle' data-bs-toggle='tooltip' data-bs-original-title='Delete'>
         <i class='fa fa-trash'></i>
     </a>
 </td>";

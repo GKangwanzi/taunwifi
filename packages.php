@@ -34,9 +34,10 @@ if (isset($_POST['register'])){
 $name 		= $_POST["name"];
 $price 		= $_POST["price"]; 
 $duration 	= $_POST["duration"]; 
+$router 	= $_POST["router"]; 
 
 
-$sql 		= "INSERT INTO packages (name, price, duration) VALUES ('$name', '$price', '$duration')";
+$sql 		= "INSERT INTO packages (name, price, duration, router) VALUES ('$name', '$price', '$duration', '$router')";
 
 $ask = "SELECT * FROM packages";
 $result = mysqli_query($con, $ask);
@@ -86,6 +87,28 @@ echo "
 
 <div class="form-group mb-3">
 <input type="text" placeholder="Duration" class="form-control" name="duration" >
+</div>
+
+<div class="mb-3">
+    <select class="form-select" id="example-select" class="choices form-select" name="router">
+        <option>Select Router</option>
+        <?php 
+
+        $sql = "SELECT * FROM router";
+        if($result = mysqli_query($con, $sql)){
+            if(mysqli_num_rows($result) > 0){
+                while($row = mysqli_fetch_array($result)){
+                        echo '<option value='.$row['routerID'].'>' 
+                        . $row['name']. '</option>';
+                }
+                mysqli_free_result($result);
+            } else{
+                echo "No records found.";
+            }
+        }
+        ?>
+        
+    </select>
 </div>
 
 

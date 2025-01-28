@@ -29,9 +29,10 @@ if ($response === FALSE) {
 }
 
 $token = json_decode($response, true)['access_token'];
-
+$package = $_GET['package'];
+$phone = $_GET['phone'];
 // Step 2: Check payment status
-$sql    = "SELECT * FROM voucher WHERE status = 'available' ORDER BY voucherID DESC LIMIT 1 ";
+$sql    = "SELECT * FROM voucher WHERE status = 'available' AND package= '$package' ORDER BY voucherID DESC LIMIT 1 ";
 $result = mysqli_query($con, $sql);
 $row    = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
@@ -39,6 +40,7 @@ $row    = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
 $transaction_id = $_GET['id'];
 $dns = $_GET['dns'];
+
 $code  = $row["voucherID"];
 $options = [
     'http' => [
@@ -68,11 +70,12 @@ $stmt2 = $con->prepare($sql);
 $stmt2 -> bind_param("ss", $vstatus, $code);
 $stmt2 -> execute();
 
+$message = "Click the link to connect to TaunWiFi http://".$dns."/login.html?card=".$code;
 
 // Step 4: Redirect based on status
 if ($status === "Success") {
     SendSMS('non_customised','bulk', $phone, $message);
-    header("Location: https://".$dns."/login.html?card=".$code." ");
+    header("Location: http://".$dns."/login.html?card=".$code." ");
 } else {
     header("Location: failure.php");
 }
